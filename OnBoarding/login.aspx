@@ -7,6 +7,8 @@
     <title></title>
 </head>
 <body>
+    <center>
+       
     <form id="LoginForm" runat="server">
    <div style="font-family:Arial">
 <table style="border: 1px solid black">
@@ -17,19 +19,19 @@
     </tr>
     <tr>
         <td>
-            User Name
+            User Name :
         </td>    
         <td>
-            :<asp:TextBox ID="txtUserName" runat="server">
+            <asp:TextBox ID="txtUserName" runat="server">
             </asp:TextBox>
         </td>    
     </tr>
     <tr>
         <td>
-            Password
-        </td>    
+            Password :
+        </td>     
         <td>
-            :<asp:TextBox ID="txtPassword" TextMode="Password" runat="server">
+            <asp:TextBox ID="txtPassword" TextMode="Password" runat="server">
             </asp:TextBox>
         </td>    
     </tr>
@@ -47,10 +49,11 @@
         </div>
         <asp:Label ID="lbl" runat="server" ForeColor="Red" Font-Bold="true"></asp:Label>
        </form>
-<br />
-<a href="Reistration/Register.aspx">Click here to register</a> 
+    <a href="Reistration/Register.aspx">Click here to register</a> 
 if you do not have a user name and password.
 </div> 
+
+        </center>
     
 </body>
 </html>
