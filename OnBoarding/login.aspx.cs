@@ -23,25 +23,15 @@ namespace OnBoarding
         {
             string username = txtUserName.Text;
             string password = txtPassword.Text;
-           
-                 if (FormsAuthentication.Authenticate (username, password))
-                       {
-                                FormsAuthentication.RedirectFromLoginPage(username, ChkBox.Checked);
-                        }
-                 else if  (AuthenticateUser(username, password))
-                  {
-                                FormsAuthentication.RedirectFromLoginPage(username, ChkBox.Checked);
-                 }
-                else
-                 {
-                lbl.Text = "invalid username or password. ";
-                 }
 
+            AuthenticateUser(username, password);
 
         }
 
         [Obsolete]
-        private bool AuthenticateUser(string username, string password)
+       
+
+        private void AuthenticateUser(string username, string password)
         {
             // ConfigurationManager class is in System.Configuration namespace
             string CS = ConfigurationManager.ConnectionStrings["DBCS"].ConnectionString;
@@ -51,18 +41,36 @@ namespace OnBoarding
                 SqlCommand cmd = new SqlCommand("spAuthenticateUser", con);
                 cmd.CommandType = CommandType.StoredProcedure;
 
-                // FormsAuthentication is in System.Web.Security
-                string EncryptedPassword = FormsAuthentication.HashPasswordForStoringInConfigFile(password, "SHA1");
-                // SqlParameter is in System.Data namespace
+                //Formsauthentication is in system.web.security
+                string encryptedpassword = FormsAuthentication.HashPasswordForStoringInConfigFile(password, "SHA1");
+
+                //sqlparameter is in System.Data namespace
                 SqlParameter paramUsername = new SqlParameter("@UserName", username);
-                SqlParameter paramPassword = new SqlParameter("@Password", EncryptedPassword);
+                SqlParameter paramPassword = new SqlParameter("@Password", encryptedpassword);
 
                 cmd.Parameters.Add(paramUsername);
                 cmd.Parameters.Add(paramPassword);
 
                 con.Open();
-                int ReturnCode = (int)cmd.ExecuteScalar();
-                return ReturnCode == 1;
+                SqlDataReader rdr = cmd.ExecuteReader();
+                while (rdr.Read())
+                {
+                    int RetryAttempts = Convert.ToInt32(rdr["RetryAttempts"]);
+                    if (Convert.ToBoolean(rdr["AccountLocked"]))
+                    {
+                        lbl.Text = "Account locked. Please contact administrator";
+                    }
+                    else if (RetryAttempts > 0)
+                    {
+                        int AttemptsLeft = (4 - RetryAttempts);
+                        lbl.Text = "Invalid user name and/or password. " +
+                            AttemptsLeft.ToString() + "attempt(s) left";
+                    }
+                    else if (Convert.ToBoolean(rdr["Authenticated"]))
+                    {
+                        FormsAuthentication.RedirectFromLoginPage(username, ChkBox.Checked);
+                    }
+                }
             }
         }
     }
